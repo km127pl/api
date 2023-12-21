@@ -1,9 +1,13 @@
 name = "api"
-main = "src/worker.js"
+main = "src/worker.ts"
 compatibility_date = "2023-12-21"
 workers_dev = true
+kv_namespaces = [
+  { binding = "CACHE", id = "3db5085a775a42e39f30eb8f7d7ca539", preview_id = "3db5085a775a42e39f30eb8f7d7ca539" }
+]
 
 [[routes]]
 pattern = "api.km127pl.us"
 zone_name = "km127pl.us"
 custom_domain = true
+
