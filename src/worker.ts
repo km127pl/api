@@ -164,7 +164,7 @@ router.get('/echo', (request, env, ctx) => {
 });
 
 router.get('/nowplaying', async (request, env, ctx) => {
-	// based on the code sent by dimdem on their discord server, ty <3
+	// based on the code sent by dimden on their discord server, ty <3
 	// https://discord.com/channels/503244758966337546/628124693378891786/1187192265026838591
 	// join it! https://discord.gg/yaqzbDBaAA
 	const res = response(request);
