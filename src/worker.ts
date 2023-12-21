@@ -208,7 +208,8 @@ app.get("/services/nowplaying", (req, res) => {
 		}
 	}
 
-	if (Date.now() - last_nowplaying > 7500) {
+	if (Date.now() - last_nowplaying > 30_000) {
+		// 30 seconds of cache
 		cached = false;
 		const response = await fetch(
 			`http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=km127pl&api_key=${env.LASTFM_API_KEY}&format=json`
