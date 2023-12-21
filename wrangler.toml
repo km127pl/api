@@ -11,3 +11,7 @@ pattern = "api.km127pl.us"
 zone_name = "km127pl.us"
 custom_domain = true
 
+[vars]
+LASTFM_USER = "km127pl"
+
+
