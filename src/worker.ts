@@ -164,25 +164,9 @@ router.get('/echo', (request, env, ctx) => {
 });
 
 router.get('/nowplaying', async (request, env, ctx) => {
-	/*
-	based on the code
-	let lastCheck = 0;
-let cachedLastfm = {};
-app.get("/services/nowplaying", (req, res) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    if(Date.now() - lastCheck > 7500) {
-        lastCheck = Date.now();
-        fetch("http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=dimdendev&api_key=meowmeowmeowmeowmeow&format=json ").then(i => i.json()).then(({recenttracks}) => {
-            if(typeof recenttracks !== 'object') return res.json(cachedLastfm);
-            cachedLastfm = recenttracks.track[0];
-            res.json(cachedLastfm);
-        })
-    } else {
-        res.json(cachedLastfm);
-    }
-});
- */
-
+	// based on the code sent by dimdem on their discord server, ty <3
+	// https://discord.com/channels/503244758966337546/628124693378891786/1187192265026838591
+	// join it! https://discord.gg/yaqzbDBaAA
 	const res = response(request);
 	let last_nowplaying;
 	let cached_lastfm = {};
@@ -212,7 +196,7 @@ app.get("/services/nowplaying", (req, res) => {
 		// 30 seconds of cache
 		cached = false;
 		const response = await fetch(
-			`http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=km127pl&api_key=${env.LASTFM_API_KEY}&format=json`
+			`http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${env.LASTFM_USER}&api_key=${env.LASTFM_API_KEY}&format=json`
 		);
 		const { recenttracks } = await response.json();
 		if (typeof recenttracks !== 'object') {
