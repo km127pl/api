@@ -81,7 +81,7 @@ const response = (request) => {
 
 // library ends here
 
-router.get('/api', (request, env, ctx) => {
+router.get('/', (request, env, ctx) => {
 	const res = response(request);
 	return res.json({
 		message: 'Hello world',
@@ -89,7 +89,7 @@ router.get('/api', (request, env, ctx) => {
 		endpoints: {
 			echo: {
 				method: 'GET',
-				path: '/api/echo',
+				path: '/echo',
 				params: {
 					message: 'string',
 				},
@@ -97,7 +97,7 @@ router.get('/api', (request, env, ctx) => {
 			},
 			proxy: {
 				method: 'GET',
-				path: '/api/proxy',
+				path: '/proxy',
 				params: {
 					url: 'string',
 				},
@@ -105,25 +105,21 @@ router.get('/api', (request, env, ctx) => {
 			},
 			stats: {
 				method: 'GET',
-				path: '/api/stats',
+				path: '/stats',
 				description: 'Get stats',
 			},
 		},
 	});
 });
 
-router.get('/api/', (request, env, ctx) => {
-	return response(request).redirect('/api');
-});
-
-router.get('/api/proxy', (request, env, ctx) => {
+router.get('/proxy', (request, env, ctx) => {
 	const res = response(request);
 	const { searchParams } = new URL(request.url);
 	const url = searchParams.get('url');
 	return res.proxy(url);
 });
 
-router.get('/api/stats', async (request, env, ctx) => {
+router.get('/stats', async (request, env, ctx) => {
 	const res = response(request);
 
 	let last_nowplaying;
@@ -152,7 +148,7 @@ router.get('/api/stats', async (request, env, ctx) => {
 	});
 });
 
-router.get('/api/echo', (request, env, ctx) => {
+router.get('/echo', (request, env, ctx) => {
 	const res = response(request);
 	const { searchParams } = new URL(request.url);
 	const message = searchParams.get('message');
