@@ -31,7 +31,7 @@ wrangler deploy
 -   [ ] Url Shortener
 -   [x] Last.FM Now Playing
 -   [x] Last.FM Now Playing as SVG
--   [ ] Last.FM Now Playing as PNG
+-   [x] Last.FM Now Playing as PNG
 -   [ ] Last.FM Now Playing variable width
 -   [ ] Implement cached ratelimiter on routes (factor out `/nowplaying`'s ratelimiter)
 
