@@ -25,9 +25,9 @@ export const _router_Fetch = async (request, env, ctx) => {
 		} catch (e) {
 			return res.json(
 				{
-					message: 'Internal Server Error',
+					message: `Internal Server Error: ${e.name || ''}`,
 					code: 500,
-					error: e,
+					error: e.message,
 				},
 				{
 					status: 500,

@@ -5,6 +5,7 @@ import resvgwasm from './index_bg.wasm' assert { type: 'wasm' };
 import { router } from './web';
 import { getNowPlaying, getNowPlayingSVG } from './nowplaying';
 import { _router_Fetch } from './web';
+import { getRandomString } from './utils';
 
 initWasm(resvgwasm as WebAssembly.Module);
 
@@ -29,11 +30,6 @@ router.get('/', async (req, res) => {
 				},
 				description: 'Proxy the request to the given url',
 			},
-			stats: {
-				method: 'GET',
-				path: '/stats',
-				description: 'Get stats',
-			},
 			nowplaying: {
 				method: 'GET',
 				path: '/nowplaying',
@@ -50,6 +46,51 @@ router.get('/', async (req, res) => {
 					rounded: 'string',
 				},
 			},
+			nowplaying_png: {
+				method: 'GET',
+				path: '/nowplaying.png',
+				description: 'Get my current nowplaying track from last.fm as a png',
+				params: {
+					background: 'string',
+					title: 'string',
+					subtitle: 'string',
+					rounded: 'string',
+				},
+			},
+			random: {
+				method: 'GET',
+				path: '/random',
+				description: 'Get a random value',
+				endpoints: {
+					uuid: {
+						method: 'GET',
+						path: '/random/uuid',
+						description: 'Get a random uuid',
+					},
+					number: {
+						method: 'GET',
+						path: '/random/number',
+						params: {
+							min: 'number',
+							max: 'number',
+						},
+						description: 'Get a random number between min and max',
+					},
+					code: {
+						method: 'GET',
+						path: '/random/code',
+						params: {
+							length: 'number',
+						},
+						description: 'Get a random code with the given length',
+					},
+					color: {
+						method: 'GET',
+						path: '/random/color',
+						description: 'Get a random color',
+					},
+				},
+			},
 		},
 	});
 });
@@ -64,33 +105,6 @@ router.get('/proxy', async (req, res) => {
 		});
 	}
 	return res.proxy(url);
-});
-
-router.get('/stats', async (req, res, env, ctx) => {
-	let last_nowplaying;
-
-	try {
-		last_nowplaying = await env.CACHE.get('last_nowplaying');
-	} catch (e) {
-		return res.json({
-			message: 'Error',
-			code: 500,
-			error: e,
-		});
-	} finally {
-		if (!last_nowplaying) {
-			last_nowplaying = Date.now();
-			await env.CACHE.put('last_nowplaying', last_nowplaying);
-		}
-	}
-
-	return res.json({
-		message: 'Stats',
-		code: 200,
-		stats: {
-			last_nowplaying,
-		},
-	});
 });
 
 router.get('/echo', (req, res) => {
@@ -154,6 +168,74 @@ router.get('/nowplaying', async (req, res, env, ctx) => {
 		sent: Date.now(),
 		cached,
 		nowplaying: cached_lastfm,
+	});
+});
+
+router.get('/random/uuid', async (req, res, env) => {
+	const uuid = crypto.randomUUID();
+
+	return res.json({
+		uuid,
+	});
+});
+
+router.get('/random/number', async (req, res, env) => {
+	const min = parseInt(req.params.get('min') || '0');
+	const max = parseInt(req.params.get('max') || '0');
+
+	if (!min || !max) {
+		return res.json({
+			message: 'Missing `min` or `max`',
+			code: 400,
+		});
+	}
+
+	const random = Math.floor(Math.random() * (max - min + 1) + min);
+
+	return res.json({
+		random,
+	});
+});
+
+router.get('/random/code', async (req, res, env) => {
+	const length = parseInt(req.params.get('length') || '16');
+
+	if (length < 1 || length > 2048) {
+		return res.json({
+			message: 'Invalid length',
+			code: 400,
+		});
+	}
+
+	return res.json({
+		code: getRandomString(length),
+	});
+});
+
+router.get('/random/color', async (req, res) => {
+	const random = Math.floor(Math.random() * 16777215).toString(16);
+
+	return res.json({
+		color: `#${random}`,
+	});
+});
+
+router.get('/shorten', async (req, res, env) => {
+	const url = req.params.get('url');
+	if (!url) {
+		return res.json({
+			message: 'Missing url',
+			code: 400,
+		});
+	}
+
+	const response = await fetch(`https://is.gd/create.php?format=json&url=${url}`);
+	const data = await response.json();
+
+	return res.json({
+		message: 'Shortened url',
+		code: 200,
+		url: data.shorturl,
 	});
 });
 
