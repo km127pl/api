@@ -5,6 +5,7 @@ workers_dev = true
 kv_namespaces = [
   { binding = "CACHE", id = "3db5085a775a42e39f30eb8f7d7ca539", preview_id = "3db5085a775a42e39f30eb8f7d7ca539" }
 ]
+node_compat = true
 
 [[routes]]
 pattern = "api.km127pl.us"

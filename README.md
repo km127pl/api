@@ -1,7 +1,10 @@
 # api.km127pl.us
 
+> [!NOTE]
+> This api is subject to change at any time. I am not responsible for any breakages.
+
 > [!WARNING]
-> This api is unfinished. Keep your expectations low.
+> This api is unfinished. Keep your expectations low. It also shades the @resvg/resvg-wasm package, which adds 1.5mb to the bundle size.
 
 my very weird API running on cloudflare workers
 
@@ -27,6 +30,9 @@ wrangler deploy
 
 -   [ ] Url Shortener
 -   [x] Last.FM Now Playing
+-   [x] Last.FM Now Playing as SVG
+-   [ ] Last.FM Now Playing as PNG
+-   [ ] Last.FM Now Playing variable width
 -   [ ] Implement cached ratelimiter on routes (factor out `/nowplaying`'s ratelimiter)
 
 ## API Routes
