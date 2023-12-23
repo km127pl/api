@@ -91,6 +91,23 @@ router.get('/', async (req, res) => {
 					},
 				},
 			},
+			shorten: {
+				method: 'GET',
+				path: '/shorten',
+				params: {
+					url: 'string',
+				},
+				description: 'Shorten a url',
+			},
+			svg2png: {
+				method: 'GET',
+				path: '/svg2png',
+				params: {
+					url: 'string',
+					svg: 'string',
+				},
+				description: 'Convert an svg to a png',
+			},
 		},
 	});
 });
@@ -198,7 +215,7 @@ router.get('/random/number', async (req, res, env) => {
 });
 
 router.get('/random/code', async (req, res, env) => {
-	const length = parseInt(req.params.get('length') || '16');
+	const length = parseInt(req.params.get('length') || '16') / 2; // divide by 2 because the length is doubled
 
 	if (length < 1 || length > 2048) {
 		return res.json({
@@ -220,6 +237,55 @@ router.get('/random/color', async (req, res) => {
 	});
 });
 
+router.get('/svg2png', async (req, res, env) => {
+	const url = req.params.get('url');
+	let svg = req.params.get('svg');
+
+	if (!url && !svg) {
+		return res.json({
+			message: 'Missing url/svg',
+			code: 400,
+		});
+	}
+
+	if (!svg) svg = await (await fetch(url || 'https://placeholder.pics/svg/300')).text();
+
+	const font = await fetch('https://raw.githubusercontent.com/google/fonts/main/ofl/ibmplexsans/IBMPlexSans-Bold.ttf');
+	const fontData = await font.arrayBuffer();
+	const buffer = new Uint8Array(fontData);
+
+	const opts = {
+		font: {
+			loadSystemFonts: true,
+			defaultFontFamily: 'IBM Plex Sans',
+			fontBuffers: [buffer],
+		},
+	};
+
+	const resvg = new Resvg(svg, opts);
+	const resolved = await Promise.all(
+		resvg.imagesToResolve().map(async (url) => {
+			const img = await fetch(url);
+			console.log('resolving', url);
+			const buffer = await img.arrayBuffer();
+			return {
+				url,
+				buffer: new Uint8Array(buffer),
+			};
+		})
+	);
+	if (resolved.length > 0) {
+		for (const result of resolved) {
+			const { url, buffer } = result;
+			resvg.resolveImage(url, buffer);
+		}
+	}
+	const pngData = resvg.render();
+	const pngBuffer = pngData.asPng();
+
+	return res.image(pngBuffer);
+});
+
 router.get('/shorten', async (req, res, env) => {
 	const url = req.params.get('url');
 	if (!url) {
@@ -229,8 +295,13 @@ router.get('/shorten', async (req, res, env) => {
 		});
 	}
 
-	const response = await fetch(`https://is.gd/create.php?format=json&url=${url}`);
-	const data = await response.json();
+	const code = getRandomString(3);
+	const data = {
+		url,
+		shorturl: `https://s.km127pl.us/${code}`,
+	};
+
+	await env.CACHE.put(code, JSON.stringify(data));
 
 	return res.json({
 		message: 'Shortened url',

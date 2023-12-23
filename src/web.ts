@@ -1,4 +1,5 @@
 import { KVNamespace } from '@cloudflare/workers-types';
+import { getRandomString } from './utils';
 
 interface Env {
 	CACHE: KVNamespace;
@@ -6,6 +7,40 @@ interface Env {
 
 export const _router_Fetch = async (request, env, ctx) => {
 	const { pathname } = new URL(request.url);
+
+	// check if host is domain "api.km127pl.workers.dev"
+	if (request.headers.get('host') == 'api.km127pl.workers.dev') {
+		return response(request).redirect('https://api.km127pl.us/' + pathname);
+	}
+
+	// check if its s.km127pl.us (shortener)
+	if (request.headers.get('host') == 's.km127pl.us') {
+		console.error(pathname);
+		// try {
+		const code = pathname.slice(1);
+		console.error(code);
+		let data = await env.CACHE.get(code);
+		throw new Error(data);
+
+		if (!data) {
+			return response(request).json({
+				message: 'Not found',
+				code: 404,
+			});
+		}
+
+		data = JSON.parse(data);
+
+		return response(request).text(JSON.stringify(data));
+		// } catch (e) {
+		// 	return response(request).json({
+		// 		message: 'Internal Server Error',
+		// 		code: 500,
+		// 		error: e,
+		// 		...e,
+		// 	});
+		// }
+	}
 
 	const route = _ROUTES[pathname];
 	const res = response(request);
